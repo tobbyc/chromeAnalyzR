@@ -36,8 +36,8 @@ extract.domain <- function(url){
 ```{r }
 
 # create a connection object. 
-con <- dbConnect(RSQLite::SQLite(), dbname="c:/users/oyeleye oluwatobi/desktop/history")
-#con <- dbConnect(SQLite(), dbname = 'c:/users/oyeleye oluwatobi/appdata/local/google/chrome/user data/default/history')
+con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/history")
+
 # get a list of all tables
 # alltables = dbListTables(con)
 
