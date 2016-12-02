@@ -95,7 +95,7 @@ dtheme <- theme(
   axis.ticks = element_blank()
 )
 
-barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='', ylab='', sortAsc=F, sortDesc=F, annotate=F){
+barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='', ylab='Visit Count', sortAsc=F, sortDesc=F, annotate=F){
   ann <- geom_text(aes(label = height), vjust = -0.25, size=3)
   if( !sortAsc && !sortDesc ){
     gg <- ggplot(data=data, aes(x=names.arg, y=height))
@@ -112,6 +112,7 @@ barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='
   }
   
   plot <- gg + 
+    labs(x=x, y=y, title=title) + 
     geom_bar(stat = 'identity', fill = color) +
     xlab(xlab) + ylab(ylab) + dtheme
   return(plot)
@@ -122,15 +123,16 @@ ggplot(Date.stats, aes(x=date), y=n) +
   geom_area(fill = '#278DBC') + 
   dtheme
 
-with(Hr.stats, barPlot(Hr.stats, n, hr)) + 
+with(Hr.stats, barPlot(Hr.stats, n, hr, title='Time of Day')) + 
   theme(
     axis.text.x = element_text(angle = 60, hjust=1)
   )
 
-
-with(Month.stats, barPlot(Month.stats, n, month, sortAsc = T)) 
+with(Month.stats, barPlot(Month.stats, n, month, sortAsc = T, title='Month')) 
 # a few tweak for daily stats. 
-with(Day.stats, barPlot(Day.stats, n, as.integer(day))) + scale_x_continuous(breaks = seq(1, 31, 2))
-with(Weekday.stats, barPlot(Weekday.stats, n, weekday))
+with(Day.stats, barPlot(Day.stats, n, as.integer(day), title='Day of Month')) + 
+  scale_x_continuous(breaks = seq(1, 31, 2))
+
+with(Weekday.stats, barPlot(Weekday.stats, n, weekday, title='Day of Week'))
 
 
