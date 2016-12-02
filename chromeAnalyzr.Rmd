@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = F, message=F, warning=F)
 library("dplyr")
 library("urltools")
 library("magrittr")
-library("ggplot2")
 library("RSQLite")
 library("highcharter")
 
