@@ -5,7 +5,7 @@ library("ggplot2")
 library("RSQLite")
 
 # create a connection object. 
-con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/history")
+con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/History")
 
 # get a list of all tables
 # alltables = dbListTables(con)
@@ -53,7 +53,7 @@ Top.urls <- group_by(History.data, url) %>%
 
 # Date stats
 Date.stats <- 
-  mutate(History.data, date = as.Date(datetime)) %>%
+  mutate(History.data, date = strftime(datetime, '%b %d')) %>%
   count(., date)
   
 #group_by(date) %>%
@@ -71,7 +71,7 @@ Hr.stats <-
 
 #Day of the month stats (day as a number)
 Day.stats <- 
-  mutate(History.data, day = as.integer(format.Date(datetime, '%d'))) %>%
+  mutate(History.data, day = as.integer(strftime(datetime, '%d'))) %>%
   count(., day)
 
 #Months stats
@@ -82,18 +82,8 @@ Month.stats <-
 
 #Let us c!
 
-ggplot(Month.stats, aes(month, visitCount)) + geom_bar(stat = 'identity')
-
 # A lil bit of customization never kills nobody
 # Customized barPlot function :D
-
-dtheme <- theme(
-  panel.grid.major.x = element_blank(),
-  panel.grid.minor.y = element_blank(),
-  panel.grid.major.y = element_line(size=.05, color="grey" ),
-  panel.background = element_rect(fill='white', colour='white'),
-  axis.ticks = element_blank()
-)
 
 barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='', ylab='Visit Count', sortAsc=F, sortDesc=F, annotate=F){
   ann <- geom_text(aes(label = height), vjust = -0.25, size=3)
@@ -114,14 +104,24 @@ barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='
   plot <- gg + 
     labs(x=x, y=y, title=title) + 
     geom_bar(stat = 'identity', fill = color) +
-    xlab(xlab) + ylab(ylab) + dtheme
+    xlab(xlab) + ylab(ylab) + 
+    theme(
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.major.y = element_line(size=.05, color="grey" ),
+      panel.background = element_rect(fill='white', colour='white'),
+      axis.ticks = element_blank()
+    )
+  
   return(plot)
 }
 
-ggplot(Date.stats, aes(x=date, y=n)) + 
-  geom_point(color = 'blue') + 
-  geom_area(fill = '#278DBC') + 
-  dtheme
+
+
+with(Top.domains, barPlot(Top.domains, visitcount, domain, title='Top domains')) + 
+  theme(
+    axis.text.x = element_text(angle = 60, hjust=1)
+  )
 
 with(Hr.stats, barPlot(Hr.stats, n, hr, title='Time of Day')) + 
   theme(
@@ -134,5 +134,3 @@ with(Day.stats, barPlot(Day.stats, n, as.integer(day), title='Day of Month')) +
   scale_x_continuous(breaks = seq(1, 31, 2))
 
 with(Weekday.stats, barPlot(Weekday.stats, n, weekday, title='Day of Week'))
-
-
