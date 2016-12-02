@@ -118,7 +118,7 @@ barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='
   return(plot)
 }
 
-ggplot(Date.stats, aes(x=date), y=n) + 
+ggplot(Date.stats, aes(x=date, y=n)) + 
   geom_point(color = 'blue') + 
   geom_area(fill = '#278DBC') + 
   dtheme
