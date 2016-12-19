@@ -49,11 +49,11 @@
 
 ## Daily stats
 
-Daily stats             | 
-----------------        | -------------
-Average visits per day: | 194
-Median Visits Per Day:  | 121
-Today:                  | 99
+Daily stats             |              |
+----------------        | ------------:|
+Average visits per day: | 194          |
+Median Visits Per Day:  | 121          |
+Today:                  | 99 		   |
 
 ## Let us C!
 
