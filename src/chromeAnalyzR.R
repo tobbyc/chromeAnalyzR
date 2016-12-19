@@ -5,8 +5,7 @@ library("ggplot2")
 library("RSQLite")
 
 # create a connection object. 
-con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/History")
-
+con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/Default/History")
 # get a list of all tables
 # alltables = dbListTables(con)
 
@@ -20,7 +19,7 @@ History.data <- dbGetQuery(con, query)
 # manipulating date as strings can be difficult. 
 # also date and time objects includes functions for extracting character representation of date object.
 
-History.data$datetime = as.POSIXct(History.data$datetime)
+History.data$datetime <- as.POSIXct(History.data$datetime)
 
 #Function that extracts domain from the url hence the urltools !
 extract.domain <- function(url){
@@ -46,6 +45,7 @@ Top.domains <- group_by(History.data, domain) %>%
   arrange(desc(visitcount)) %>%
   head(., 10)
 
+#top ten urls
 Top.urls <- group_by(History.data, url) %>%
   summarise(visitcount = n()) %>% 
   arrange(desc(visitcount)) %>%
@@ -55,9 +55,7 @@ Top.urls <- group_by(History.data, url) %>%
 Date.stats <- 
   mutate(History.data, date = strftime(datetime, '%b %d')) %>%
   count(., date)
-  
-#group_by(date) %>%
-#summarise(visitcount = n())
+
 
 #Day of week stats
 Weekday.stats <-
@@ -102,15 +100,15 @@ barPlot <- function(data, height, names.arg, color='#278DBC', title = '', xlab='
   }
   
   plot <- gg + 
-    labs(x=x, y=y, title=title) + 
+    labs(x=xlab, y=ylab, title=title) + 
     geom_bar(stat = 'identity', fill = color) +
-    xlab(xlab) + ylab(ylab) + 
     theme(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.y = element_blank(),
       panel.grid.major.y = element_line(size=.05, color="grey" ),
       panel.background = element_rect(fill='white', colour='white'),
-      axis.ticks = element_blank()
+      axis.ticks = element_blank(),
+      plot.title = element_text(size = 20, face = 'bold', hjust = 0.5)
     )
   
   return(plot)
@@ -122,15 +120,22 @@ with(Top.domains, barPlot(Top.domains, visitcount, domain, title='Top domains'))
   theme(
     axis.text.x = element_text(angle = 60, hjust=1)
   )
+ggsave('topdomains.png')
+
 
 with(Hr.stats, barPlot(Hr.stats, n, hr, title='Time of Day')) + 
   theme(
     axis.text.x = element_text(angle = 60, hjust=1)
   )
+ggsave('TimeofDay.png')
 
 with(Month.stats, barPlot(Month.stats, n, month, sortAsc = T, title='Month')) 
+ggsave('Monthly.png')
+
 # a few tweak for daily stats. 
 with(Day.stats, barPlot(Day.stats, n, as.integer(day), title='Day of Month')) + 
   scale_x_continuous(breaks = seq(1, 31, 2))
+ggsave('DayofMonth.png')
 
 with(Weekday.stats, barPlot(Weekday.stats, n, weekday, title='Day of Week'))
+ggsave('DayofWeek.png')

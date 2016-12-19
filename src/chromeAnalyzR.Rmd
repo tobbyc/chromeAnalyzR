@@ -35,8 +35,7 @@ extract.domain <- function(url){
 ```{r }
 
 # create a connection object. 
-con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/history")
-
+con <- dbConnect(RSQLite::SQLite(), dbname="/path/to/chrome/Default/History")
 # get a list of all tables
 # alltables = dbListTables(con)
 
@@ -52,6 +51,16 @@ History.data <- dbGetQuery(con, query)
 
 History.data$datetime = as.POSIXct(History.data$datetime)
 
+#Function that extracts domain from the url hence the urltools !
+extract.domain <- function(url){
+  df <- suffix_extract(domain(url))
+  if (!(is.na(df$domain) && is.na(df$suffix))){
+    paste(df$domain, df$suffix, sep='.')
+  } else {
+    return(url)
+  }
+}
+
 #add a new column by applying (lapplying actually) extract.domain function to url column to extract the domain names 
 History.data$domain <- 
   lapply(History.data$url, extract.domain) %>% 
@@ -61,8 +70,6 @@ History.data$domain <-
 
 
 ```
-
-
 ## Stats {.tabset .tabset-fade .tabset-pills}
 
 ### Top Domains
@@ -105,10 +112,7 @@ mutate(History.data, date = strftime(datetime, '%a, %B %d, %Y')) %>%
 
 ```
 
-
-
 ```{r}
-
 
 #Day of week stats
 Weekday.stats <-
@@ -138,7 +142,6 @@ avg.visits.per.day <- mean(Date.stats$visitcount) %>%
 med.visits.per.day <- median(Date.stats$visitcount)
 
 ```
-
 ## Daily stats
 
 Daily stats             | 
@@ -172,7 +175,6 @@ plot(Hr.stats, Hr.stats$hr, Hr.stats$n, title= 'Time of Day')
 plot(Weekday.stats, Weekday.stats$weekday, Weekday.stats$n, 'Day of week')
 plot(Day.stats, Day.stats$day, Day.stats$n, 'Day of Month')
 plot(Month.stats, Month.stats$month, Month.stats$n, 'Month' )
-
 ```
 
 
